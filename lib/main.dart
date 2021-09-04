@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 void main() => runApp(MyApp());
 
@@ -51,6 +52,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _workTime = 25;
   int _restTime = 5;
   int _specialRestTime = 15;
+  AudioCache audioCache = AudioCache();
 
   // countdown function for work time
   void startTimer() {
@@ -68,12 +70,20 @@ class _MyHomePageState extends State<MyHomePage> {
         else {
           setState(() {
             _workTime--;
-            SystemSound.play(SystemSoundType.click);
+            // SystemSound.play(SystemSoundType.click);
+            audioCache.play('clock-ticking-2.mp3');
           });
         }
       },
     );
   }
+
+  // Future<AudioPlayer> playLocalAsset() async {
+  //   AudioCache cache = new AudioCache();
+  //   //At the next line, DO NOT pass the entire reference such as assets/yes.mp3. This will not work.
+  //   //Just pass the file name only.
+  //   return await cache.play("clock-ticking-1.mp3");
+  // }
 
   @override
   void dispose() {
