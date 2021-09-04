@@ -52,16 +52,20 @@ class _MyHomePageState extends State<MyHomePage> {
   int _restTime = 5;
   int _specialRestTime = 15;
 
+  // countdown function for work time
   void startTimer() {
     const oneSec = const Duration(seconds: 1);
     _timer = new Timer.periodic(
       oneSec,
           (Timer timer) {
+        // if worktime hits 0, timer stop
         if (_workTime == 0) {
           setState(() {
             timer.cancel();
           });
-        } else {
+        }
+        // if worktime not 0, reduce the time
+        else {
           setState(() {
             _workTime--;
             SystemSound.play(SystemSoundType.click);
@@ -123,7 +127,7 @@ class _MyHomePageState extends State<MyHomePage> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: startTimer,
-        tooltip: 'Increment',
+        tooltip: 'Start',
         child: Icon(Icons.play_arrow),
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
