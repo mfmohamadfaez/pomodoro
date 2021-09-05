@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:intl/intl.dart';
 
 void main() => runApp(MyApp());
 
@@ -49,7 +50,11 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   late Timer _timer;
-  int _workTime = 25;
+  var f = NumberFormat('00', 'en_US');
+  int _minWorkTime = 1;
+  int _secWorkTime = 30;
+  String strMinWorkTime = '01';
+  String strSecWorkTime = '30';
   int _restTime = 5;
   int _specialRestTime = 15;
   AudioCache audioCache = AudioCache();
@@ -59,23 +64,37 @@ class _MyHomePageState extends State<MyHomePage> {
     const oneSec = const Duration(seconds: 1);
     _timer = new Timer.periodic(
       oneSec,
-          (Timer timer) {
+      (Timer timer) {
         // if worktime hits 0, timer stop
-        if (_workTime == 0) {
+        if (_minWorkTime == 0 && _secWorkTime == 0) {
           setState(() {
             timer.cancel();
           });
         }
         // if worktime not 0, reduce the time
         else {
-          setState(() {
-            _workTime--;
-            // SystemSound.play(SystemSoundType.click);
-            audioCache.play('clock-ticking-2.mp3');
-          });
+          if (_secWorkTime == 0) {
+            setState(() {
+              _minWorkTime--;
+              strMinWorkTime = f.format(_minWorkTime);
+              _secWorkTime = 59;
+              strSecWorkTime = f.format(_secWorkTime);
+              // SystemSound.play(SystemSoundType.click);
+              // audioCache.play('clock-ticking-2.mp3');
+            });
+          } else {
+            setState(() {
+              _secWorkTime--;
+              strSecWorkTime = f.format(_secWorkTime);
+            });
+          }
         }
       },
     );
+  }
+
+  void stopTimer(){
+    _timer.cancel();
   }
 
   // Future<AudioPlayer> playLocalAsset() async {
@@ -129,16 +148,28 @@ class _MyHomePageState extends State<MyHomePage> {
               'Work time left:',
             ),
             Text(
-              '$_workTime',
+              '$strMinWorkTime:$strSecWorkTime',
               style: Theme.of(context).textTheme.headline4,
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: startTimer,
-        tooltip: 'Start',
-        child: Icon(Icons.play_arrow),
+      floatingActionButton:
+      Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          FloatingActionButton(
+            onPressed: startTimer,
+            tooltip: 'Start',
+            child: Icon(Icons.play_arrow),
+          ),
+          Padding(padding: EdgeInsets.all(5)),
+          FloatingActionButton(
+            onPressed: stopTimer,
+            tooltip: 'Stop',
+            child: Icon(Icons.stop),
+          ),
+        ],
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
   }
