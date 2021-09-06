@@ -1,9 +1,11 @@
 import 'dart:async';
+import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:intl/intl.dart';
+import 'dart:math' as math;
 
 void main() => runApp(MyApp());
 
@@ -89,11 +91,12 @@ class _MyHomePageState extends State<MyHomePage> {
             });
           }
         }
+        print('$_minWorkTime:$_secWorkTime');
       },
     );
   }
 
-  void stopTimer(){
+  void stopTimer() {
     _timer.cancel();
   }
 
@@ -128,20 +131,6 @@ class _MyHomePageState extends State<MyHomePage> {
         // Center is a layout widget. It takes a single child and positions it
         // in the middle of the parent.
         child: Column(
-          // Column is also a layout widget. It takes a list of children and
-          // arranges them vertically. By default, it sizes itself to fit its
-          // children horizontally, and tries to be as tall as its parent.
-          //
-          // Invoke "debug painting" (press "p" in the console, choose the
-          // "Toggle Debug Paint" action from the Flutter Inspector in Android
-          // Studio, or the "Toggle Debug Paint" command in Visual Studio Code)
-          // to see the wireframe for each widget.
-          //
-          // Column has various properties to control how it sizes itself and
-          // how it positions its children. Here we use mainAxisAlignment to
-          // center the children vertically; the main axis here is the vertical
-          // axis because Columns are vertical (the cross axis would be
-          // horizontal).
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Text(
@@ -151,11 +140,20 @@ class _MyHomePageState extends State<MyHomePage> {
               '$strMinWorkTime:$strSecWorkTime',
               style: Theme.of(context).textTheme.headline4,
             ),
+            Stack(children: [
+              // Align(alignment: Alignment.center, child: Text('HELLO')),
+              Container(
+                width: 400,
+                height: 400,
+                child: CustomPaint(
+                  painter: DashLinePainter(),
+                ),
+              ),
+            ])
           ],
         ),
       ),
-      floatingActionButton:
-      Row(
+      floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           FloatingActionButton(
@@ -172,5 +170,69 @@ class _MyHomePageState extends State<MyHomePage> {
         ],
       ), // This trailing comma makes auto-formatting nicer for build methods.
     );
+  }
+}
+
+class OpenPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    var paint1 = Paint()
+      ..color = Color(0xffaa44aa)
+      ..strokeCap = StrokeCap.round
+      ..strokeWidth = 10
+      ..style = PaintingStyle.stroke;
+
+    var path1 = Path()
+      ..moveTo(10, 10)
+      ..arcToPoint(Offset(size.width - 10, size.height - 10),
+          radius: Radius.circular(math.max(size.width, size.height)));
+
+    // canvas.drawCircle(Offset(200, 200), 100, paint1);
+    canvas.drawPath(path1, paint1);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) => false;
+}
+
+class DashLinePainter extends CustomPainter {
+  final double progress = 50.00;
+
+  // DashLinePainter({this.progress});
+
+  Paint _paint = Paint()
+    ..color = Colors.red
+    ..strokeWidth = 4.0
+    ..style = PaintingStyle.stroke
+    ..strokeJoin = StrokeJoin.round;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    var path = Path()
+      ..addOval(Rect.fromCircle(center: Offset(200, 200), radius: 140.0));
+
+    Path dashPath = Path();
+
+    double dashWidth = 10.0;
+    double dashSpace = 100 / 90;
+    double distance = 0.0;
+
+    for (PathMetric pathMetric in path.computeMetrics()) {
+      while (distance < pathMetric.length) {
+        dashPath.addPath(
+          pathMetric.extractPath(distance, distance + dashWidth),
+          Offset.zero,
+        );
+        distance += dashWidth;
+        distance += dashSpace;
+      }
+    }
+    canvas.drawPath(dashPath, _paint);
+    // canvas.drawPath(path, _paint);
+  }
+
+  @override
+  bool shouldRepaint(DashLinePainter oldDelegate) {
+    return oldDelegate.progress != progress;
   }
 }
