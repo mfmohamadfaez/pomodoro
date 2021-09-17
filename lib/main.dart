@@ -56,10 +56,9 @@ class MyHomePage extends StatefulWidget {
 class _MyHomePageState extends State<MyHomePage> {
   late Timer _timer;
   var f = NumberFormat('00', 'en_US');
-  int _minWorkTime = 1;
-  int _secWorkTime = 30;
-  String strMinWorkTime = '01';
-  String strSecWorkTime = '30';
+  int _worktime = 90;
+  var mins = '';
+  var secs = '';
   int _restTime = 5;
   int _specialRestTime = 15;
   AudioCache audioCache = AudioCache();
@@ -72,7 +71,7 @@ class _MyHomePageState extends State<MyHomePage> {
       oneSec,
       (Timer timer) {
         // if worktime hits 0, timer stop
-        if (_minWorkTime == 0 && _secWorkTime == 0) {
+        if (_worktime == 0) {
           setState(() {
             timer.cancel();
             toggleStart = true;
@@ -80,24 +79,14 @@ class _MyHomePageState extends State<MyHomePage> {
         }
         // if worktime not 0, reduce the time
         else {
-          toggleStart = false;
-          if (_secWorkTime == 0) {
-            setState(() {
-              _minWorkTime--;
-              strMinWorkTime = f.format(_minWorkTime);
-              _secWorkTime = 59;
-              strSecWorkTime = f.format(_secWorkTime);
-              // SystemSound.play(SystemSoundType.click);
-              // audioCache.play('clock-ticking-2.mp3');
-            });
-          } else {
-            setState(() {
-              _secWorkTime--;
-              strSecWorkTime = f.format(_secWorkTime);
-            });
-          }
+          setState(() {
+            toggleStart = false;
+            _worktime--;
+            mins = Duration(seconds: _worktime).inMinutes.remainder(60).toString().padLeft(2,'0');
+            secs = Duration(seconds: _worktime).inSeconds.remainder(60).toString().padLeft(2,'0');
+          });
         }
-        print('$_minWorkTime:$_secWorkTime');
+        print('$mins:$secs');
       },
     );
   }
@@ -113,11 +102,14 @@ class _MyHomePageState extends State<MyHomePage> {
   //reset the timer
   void resetTimer() {
     setState(() {
-      _minWorkTime = 1;
-      _secWorkTime = 30;
-      strMinWorkTime = '01';
-      strSecWorkTime = '30';
+      _worktime=90;
     });
+  }
+
+  @override
+  void initState() {
+    mins = Duration(seconds: _worktime).inMinutes.remainder(60).toString().padLeft(2,'0');
+    secs = Duration(seconds: _worktime).inSeconds.remainder(60).toString().padLeft(2,'0');
   }
 
   // Future<AudioPlayer> playLocalAsset() async {
@@ -126,6 +118,7 @@ class _MyHomePageState extends State<MyHomePage> {
   //   //Just pass the file name only.
   //   return await cache.play("clock-ticking-1.mp3");
   // }
+
 
   @override
   void dispose() {
@@ -157,7 +150,7 @@ class _MyHomePageState extends State<MyHomePage> {
               'Work time left:',
             ),
             Text(
-              '$strMinWorkTime:$strSecWorkTime',
+              '$mins:$secs',
               style: Theme.of(context).textTheme.headline4,
             ),
             /*Container(
