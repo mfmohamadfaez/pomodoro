@@ -57,10 +57,14 @@ class _MyHomePageState extends State<MyHomePage> {
   late Timer _timer;
   var f = NumberFormat('00', 'en_US');
   int _worktime = 90;
-  var mins = '';
-  var secs = '';
-  int _restTime = 5;
-  int _specialRestTime = 15;
+  int _restTime = 300;
+  int _specialRestTime = 900;
+  var work_mins = '';
+  var work_secs = '';
+  var rest_mins = '';
+  var rest_secs = '';
+  var spec_rest_mins = '';
+  var spec_rest_secs = '';
   AudioCache audioCache = AudioCache();
   bool toggleStart = true;
 
@@ -82,11 +86,19 @@ class _MyHomePageState extends State<MyHomePage> {
           setState(() {
             toggleStart = false;
             _worktime--;
-            mins = Duration(seconds: _worktime).inMinutes.remainder(60).toString().padLeft(2,'0');
-            secs = Duration(seconds: _worktime).inSeconds.remainder(60).toString().padLeft(2,'0');
+            work_mins = Duration(seconds: _worktime)
+                .inMinutes
+                .remainder(60)
+                .toString()
+                .padLeft(2, '0');
+            work_secs = Duration(seconds: _worktime)
+                .inSeconds
+                .remainder(60)
+                .toString()
+                .padLeft(2, '0');
           });
         }
-        print('$mins:$secs');
+        print('$work_mins:$work_secs');
       },
     );
   }
@@ -102,14 +114,42 @@ class _MyHomePageState extends State<MyHomePage> {
   //reset the timer
   void resetTimer() {
     setState(() {
-      _worktime=90;
+      _worktime = 90;
     });
   }
 
   @override
   void initState() {
-    mins = Duration(seconds: _worktime).inMinutes.remainder(60).toString().padLeft(2,'0');
-    secs = Duration(seconds: _worktime).inSeconds.remainder(60).toString().padLeft(2,'0');
+    work_mins = Duration(seconds: _worktime)
+        .inMinutes
+        .remainder(60)
+        .toString()
+        .padLeft(2, '0');
+    work_secs = Duration(seconds: _worktime)
+        .inSeconds
+        .remainder(60)
+        .toString()
+        .padLeft(2, '0');
+    rest_mins = Duration(seconds: _restTime)
+        .inMinutes
+        .remainder(60)
+        .toString()
+        .padLeft(2, '0');
+    rest_secs = Duration(seconds: _restTime)
+        .inSeconds
+        .remainder(60)
+        .toString()
+        .padLeft(2, '0');
+    spec_rest_mins = Duration(seconds: _specialRestTime)
+        .inMinutes
+        .remainder(60)
+        .toString()
+        .padLeft(2, '0');
+    spec_rest_secs = Duration(seconds: _specialRestTime)
+        .inSeconds
+        .remainder(60)
+        .toString()
+        .padLeft(2, '0');
   }
 
   // Future<AudioPlayer> playLocalAsset() async {
@@ -118,7 +158,6 @@ class _MyHomePageState extends State<MyHomePage> {
   //   //Just pass the file name only.
   //   return await cache.play("clock-ticking-1.mp3");
   // }
-
 
   @override
   void dispose() {
@@ -140,31 +179,118 @@ class _MyHomePageState extends State<MyHomePage> {
         // the App.build method, and use it to set our appbar title.
         title: Text(widget.title),
       ),
-      body: Center(
-        // Center is a layout widget. It takes a single child and positions it
-        // in the middle of the parent.
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
-            Text(
-              'Work time left:',
-            ),
-            Text(
-              '$mins:$secs',
-              style: Theme.of(context).textTheme.headline4,
-            ),
-            /*Container(
-              width: 400,
-              height: 400,
-              child: CustomPaint(
-                painter: CirclePainter(),
-                child: Center(
-                  // child: Text('Blade Runner'),
+      body: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.arrow_right,
+                  size: 50,
                 ),
-              ),
-            )*/
-          ],
-        ),
+                Padding(padding: EdgeInsets.all(15)),
+                Column(
+                  // mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      'Work Time:',
+                    ),
+                    Text(
+                      '$work_mins:$work_secs',
+                      style: Theme.of(context).textTheme.headline4,
+                    ),
+                    /*Container(
+                      width: 400,
+                      height: 400,
+                      child: CustomPaint(
+                        painter: CirclePainter(),
+                        child: Center(
+                          // child: Text('Blade Runner'),
+                        ),
+                      ),
+                    )*/
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.arrow_right,
+                  size: 50,
+                ),
+                Padding(padding: EdgeInsets.all(10)),
+                Column(
+                  // mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      'Break Time:',
+                    ),
+                    Text(
+                      '$rest_mins:$rest_secs',
+                      style: Theme.of(context).textTheme.headline4,
+                    ),
+                    /*Container(
+                      width: 400,
+                      height: 400,
+                      child: CustomPaint(
+                        painter: CirclePainter(),
+                        child: Center(
+                          // child: Text('Blade Runner'),
+                        ),
+                      ),
+                    )*/
+                  ],
+                ),
+              ],
+            ),
+          ),
+          Padding(
+            padding: const EdgeInsets.all(10.0),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Icon(
+                  Icons.arrow_right,
+                  size: 50,
+                ),
+                Padding(padding: EdgeInsets.all(10)),
+                Column(
+                  // mainAxisAlignment: MainAxisAlignment.center,
+                  children: <Widget>[
+                    Text(
+                      'Long Break Time:',
+                    ),
+                    Text(
+                      '$spec_rest_mins:$spec_rest_secs',
+                      style: Theme.of(context).textTheme.headline4,
+                    ),
+                    /*Container(
+                      width: 400,
+                      height: 400,
+                      child: CustomPaint(
+                        painter: CirclePainter(),
+                        child: Center(
+                          // child: Text('Blade Runner'),
+                        ),
+                      ),
+                    )*/
+                  ],
+                ),
+              ],
+            ),
+          ),
+        ],
       ),
       floatingActionButton: Row(
         mainAxisAlignment: MainAxisAlignment.end,
