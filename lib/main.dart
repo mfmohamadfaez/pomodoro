@@ -6,6 +6,8 @@ import 'package:flutter/services.dart';
 import 'package:audioplayers/audioplayers.dart';
 import 'package:intl/intl.dart';
 import 'dart:math' as math;
+import 'package:path_drawing/path_drawing.dart';
+import 'package:pomodoro/CountDownTimer.dart';
 
 void main() => runApp(MyApp());
 
@@ -28,6 +30,7 @@ class MyApp extends StatelessWidget {
         primarySwatch: Colors.blue,
       ),
       home: MyHomePage(title: 'Pomodoro Home Page'),
+      // home: CountDownTimer(),
     );
   }
 }
@@ -60,6 +63,7 @@ class _MyHomePageState extends State<MyHomePage> {
   int _restTime = 5;
   int _specialRestTime = 15;
   AudioCache audioCache = AudioCache();
+  bool toggleStart = true;
 
   // countdown function for work time
   void startTimer() {
@@ -71,10 +75,12 @@ class _MyHomePageState extends State<MyHomePage> {
         if (_minWorkTime == 0 && _secWorkTime == 0) {
           setState(() {
             timer.cancel();
+            toggleStart = true;
           });
         }
         // if worktime not 0, reduce the time
         else {
+          toggleStart = false;
           if (_secWorkTime == 0) {
             setState(() {
               _minWorkTime--;
@@ -96,8 +102,22 @@ class _MyHomePageState extends State<MyHomePage> {
     );
   }
 
+  // pause the timer
   void stopTimer() {
-    _timer.cancel();
+    setState(() {
+      _timer.cancel();
+      toggleStart = true;
+    });
+  }
+
+  //reset the timer
+  void resetTimer() {
+    setState(() {
+      _minWorkTime = 1;
+      _secWorkTime = 30;
+      strMinWorkTime = '01';
+      strSecWorkTime = '30';
+    });
   }
 
   // Future<AudioPlayer> playLocalAsset() async {
@@ -140,16 +160,16 @@ class _MyHomePageState extends State<MyHomePage> {
               '$strMinWorkTime:$strSecWorkTime',
               style: Theme.of(context).textTheme.headline4,
             ),
-            Stack(children: [
-              // Align(alignment: Alignment.center, child: Text('HELLO')),
-              Container(
-                width: 400,
-                height: 400,
-                child: CustomPaint(
-                  painter: DashLinePainter(),
+            /*Container(
+              width: 400,
+              height: 400,
+              child: CustomPaint(
+                painter: CirclePainter(),
+                child: Center(
+                  // child: Text('Blade Runner'),
                 ),
               ),
-            ])
+            )*/
           ],
         ),
       ),
@@ -157,14 +177,14 @@ class _MyHomePageState extends State<MyHomePage> {
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
           FloatingActionButton(
-            onPressed: startTimer,
-            tooltip: 'Start',
-            child: Icon(Icons.play_arrow),
+            onPressed: toggleStart ? startTimer : stopTimer,
+            tooltip: toggleStart ? 'Start' : 'Pause',
+            child: toggleStart ? Icon(Icons.play_arrow) : Icon(Icons.pause),
           ),
           Padding(padding: EdgeInsets.all(5)),
           FloatingActionButton(
-            onPressed: stopTimer,
-            tooltip: 'Stop',
+            onPressed: resetTimer,
+            tooltip: 'Reset',
             child: Icon(Icons.stop),
           ),
         ],
@@ -173,7 +193,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 }
 
-class OpenPainter extends CustomPainter {
+/*class OpenPainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     var paint1 = Paint()
@@ -193,13 +213,9 @@ class OpenPainter extends CustomPainter {
 
   @override
   bool shouldRepaint(CustomPainter oldDelegate) => false;
-}
+}*/
 
-class DashLinePainter extends CustomPainter {
-  final double progress = 50.00;
-
-  // DashLinePainter({this.progress});
-
+class CirclePainter extends CustomPainter {
   Paint _paint = Paint()
     ..color = Colors.red
     ..strokeWidth = 4.0
@@ -209,16 +225,19 @@ class DashLinePainter extends CustomPainter {
   @override
   void paint(Canvas canvas, Size size) {
     var path = Path()
-      ..addOval(Rect.fromCircle(center: Offset(200, 200), radius: 140.0));
+      ..addOval(Rect.fromCircle(
+          center: Offset(size.width / 2, size.height / 2),
+          radius: size.width / 3));
 
     Path dashPath = Path();
 
-    double dashWidth = 10.0;
+    double dashWidth = 5.0;
     double dashSpace = 100 / 90;
-    double distance = 0.0;
+    double distance = 20.0;
 
     for (PathMetric pathMetric in path.computeMetrics()) {
       while (distance < pathMetric.length) {
+        dashPath.moveTo(0, 0);
         dashPath.addPath(
           pathMetric.extractPath(distance, distance + dashWidth),
           Offset.zero,
@@ -232,7 +251,39 @@ class DashLinePainter extends CustomPainter {
   }
 
   @override
-  bool shouldRepaint(DashLinePainter oldDelegate) {
-    return oldDelegate.progress != progress;
+  bool shouldRepaint(CirclePainter oldDelegate) {
+    return true;
+  }
+}
+
+class CurvedPainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    var paint = Paint()
+      ..color = Colors.lightBlue
+      ..style = PaintingStyle.stroke
+      ..strokeWidth = 3;
+
+    var startPoint = Offset(0, size.height / 2);
+    var controlPoint1 = Offset(size.width / 4, size.height / 3);
+    var controlPoint2 = Offset(3 * size.width / 4, size.height / 3);
+    var endPoint = Offset(size.width, size.height / 2);
+
+    var path = Path()
+      ..addOval(Rect.fromCircle(
+          center: Offset(size.width / 2, size.height / 2),
+          radius: size.width / 3));
+    // path.moveTo(startPoint.dx, startPoint.dy);
+    // path.cubicTo(controlPoint1.dx, controlPoint1.dy,
+    //     controlPoint2.dx, controlPoint2.dy,
+    //     endPoint.dx, endPoint.dy);
+
+    canvas.drawPath(
+        dashPath(path, dashArray: CircularIntervalList([15, 10])), paint);
+  }
+
+  @override
+  bool shouldRepaint(covariant CustomPainter oldDelegate) {
+    return false;
   }
 }
